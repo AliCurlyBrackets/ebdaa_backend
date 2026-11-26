@@ -267,7 +267,7 @@ check( ! empty( $service_group ), 'ACF Service field group is registered in code
 $service_names = array_column( isset( $service_group['fields'] ) ? $service_group['fields'] : array(), 'name' );
 foreach ( array(
 	'show_in_grid', 'card_label', 'hero_badge', 'hero_title', 'hero_description',
-	'hero_chips', 'packages', 'faq_override',
+	'hero_image', 'hero_chips', 'packages', 'faq_override',
 ) as $name ) {
 	check( in_array( $name, $service_names, true ), "Service field {$name} is registered" );
 }
@@ -281,6 +281,10 @@ $service_fields = array();
 foreach ( isset( $service_group['fields'] ) ? $service_group['fields'] : array() as $field ) {
 	$service_fields[ $field['name'] ] = $field;
 }
+check(
+	isset( $service_fields['hero_image']['type'] ) && $service_fields['hero_image']['type'] === 'image' && isset( $service_fields['hero_image']['return_format'] ) && $service_fields['hero_image']['return_format'] === 'url',
+	'hero_image is an image upload field returning its URL'
+);
 check( isset( $service_fields['show_in_grid']['type'] ) && $service_fields['show_in_grid']['type'] === 'true_false', 'show_in_grid is a true/false field' );
 check(
 	isset( $service_fields['packages']['type'] ) && $service_fields['packages']['type'] === 'repeater' && isset( $service_fields['packages']['min'], $service_fields['packages']['max'] ) && $service_fields['packages']['min'] === 1 && $service_fields['packages']['max'] === 6,
@@ -317,10 +321,29 @@ foreach ( array(
 ) as $name ) {
 	check( in_array( $name, $option_names, true ), "Services field {$name} is registered" );
 }
+$options_fields = array();
+foreach ( isset( $options_group['fields'] ) ? $options_group['fields'] : array() as $field ) {
+	$options_fields[ $field['name'] ] = $field;
+}
+$feature_subfields = array();
+foreach ( isset( $options_fields['global_features']['sub_fields'] ) ? $options_fields['global_features']['sub_fields'] : array() as $field ) {
+	$feature_subfields[ $field['name'] ] = $field;
+}
+check(
+	isset( $feature_subfields['image']['type'] ) && $feature_subfields['image']['type'] === 'image' && isset( $feature_subfields['image']['return_format'] ) && $feature_subfields['image']['return_format'] === 'url',
+	'each "ماذا يشمل موقعك" feature has an image upload field returning its URL'
+);
 $defaults = be_option_defaults();
 check( isset( $defaults['included_feature'] ) && $defaults['included_feature'] === 'دومين واستضافة مجاناً لأول سنة', 'included_feature default matches the original design' );
 check( isset( $defaults['currency_label'] ) && $defaults['currency_label'] === 'ج.م', 'currency_label default matches the original design' );
 check( count( $defaults['global_features'] ) === 6, 'the six "ماذا يشمل موقعك" features are available as defaults' );
+$defaults_have_image = true;
+foreach ( $defaults['global_features'] as $default_feature ) {
+	if ( ! array_key_exists( 'image', $default_feature ) ) {
+		$defaults_have_image = false;
+	}
+}
+check( $defaults_have_image, 'default features carry an empty image so no uploaded image keeps the original icon' );
 check( count( $defaults['global_steps'] ) === 4, 'the four steps are available as defaults' );
 check( count( $defaults['global_faq'] ) === 6, 'the six global FAQ entries are available as defaults' );
 check( isset( $defaults['types_section']['tag'] ) && $defaults['types_section']['tag'] === 'أنواع المشاريع', 'types section tag default is preserved' );
@@ -370,6 +393,7 @@ foreach ( $definitions as $slug => $definition ) {
 		'hero_badge'       => $definition['hero_badge'],
 		'hero_title'       => $definition['hero_title'],
 		'hero_description' => $definition['hero_description'],
+		'hero_image'       => '',
 		'hero_chips'       => array_map( function ( $chip ) { return array( 'text' => $chip ); }, $definition['chips'] ),
 		'packages'         => array_map( function ( $package ) {
 			return array(
@@ -405,13 +429,26 @@ check( $service['packages'][0]['features'][0] === 'دومين واستضافة �
 check( $service['packages'][1]['featured'] === true, 'the seeded featured package stays featured' );
 check( $service['packages'][1]['badge'] === 'الأكثر طلباً', 'an empty badge falls back to the original default' );
 check( $service['faq'][0]['q'] === $defaults['global_faq'][0]['q'], 'an empty faq_override falls back to the global FAQ' );
+check( array_key_exists( 'hero_image', $service ) && $service['hero_image'] === '', 'a service without an uploaded hero image exposes an empty hero_image' );
+
+$GLOBALS['be_test']['values'][101]['hero_image'] = 'https://ebdaa.test/uploads/hero-realestate.webp';
+be_clear_services_cache();
+$custom_service = be_get_service( 'realestate' );
+check( $custom_service['hero_image'] === 'https://ebdaa.test/uploads/hero-realestate.webp', 'an uploaded hero image is exposed on the service' );
+$custom_json = be_service_json( $custom_service );
+check( isset( $custom_json['hero_image'], $custom_json['hero_image_custom'] ) && $custom_json['hero_image'] === 'https://ebdaa.test/uploads/hero-realestate.webp' && $custom_json['hero_image_custom'] === true, 'an uploaded hero image is passed to the browser' );
+unset( $GLOBALS['be_test']['values'][101]['hero_image'] );
+be_clear_services_cache();
+$service = be_get_service( 'realestate' );
+$service_json = be_service_json( $service );
+check( isset( $service_json['hero_image'], $service_json['hero_image_custom'] ) && $service_json['hero_image'] === get_template_directory_uri() . '/assets/img/portrait.webp' && $service_json['hero_image_custom'] === false, 'the original portrait is passed to the browser when no image is uploaded' );
 
 $GLOBALS['be_test']['values'][101]['card_label'] = '';
 be_clear_services_cache();
 check( be_get_service( 'realestate' )['name'] === 'العقارات', 'an empty card_label falls back to the post title' );
 
 $json = be_service_json( $service );
-foreach ( array( 'slug', 'url', 'n', 'b', 't', 'p', 'd', 'c', 'pl', 'faq' ) as $key ) {
+foreach ( array( 'slug', 'url', 'n', 'b', 't', 'p', 'd', 'c', 'pl', 'faq', 'hero_image', 'hero_image_custom' ) as $key ) {
 	check( array_key_exists( $key, $json ), "JSON payload contains {$key}" );
 }
 check( $json['p'] === '7,000', 'prices are formatted with Latin digits and separators' );
@@ -435,6 +472,17 @@ check( strpos( $html, 'id="hb"' ) !== false && strpos( $html, $service['badge'] 
 check( strpos( $html, 'يبدأ من <em>7,000</em> جنيه</span>' ) !== false, 'hero renders the formatted starting price' );
 check( strpos( $html, 'id="pb">7,000<' ) !== false, 'hero price badge uses the same starting price' );
 check( strpos( $html, 'class="chips rv"' ) !== false, 'hero preserves the chips class' );
+check( strpos( $html, 'class="stage rv"' ) !== false && strpos( $html, 'id="himg" src="' . get_template_directory_uri() . '/assets/img/portrait.webp"' ) !== false, 'hero keeps the original stage and portrait when no image is uploaded' );
+
+$previous_args = $args;
+$args          = array( 'service' => $custom_service );
+ob_start();
+include $theme_dir . '/template-parts/services/hero.php';
+$html = ob_get_clean();
+$args = $previous_args;
+check( strpos( $html, 'id="himg" src="https://ebdaa.test/uploads/hero-realestate.webp"' ) !== false, 'hero renders the uploaded service image' );
+check( strpos( $html, 'class="stage rv has-custom-art"' ) !== false, 'a custom hero image hides the original decorative layers' );
+check( strpos( $html, '<div class="fc a">' ) !== false, 'the floating icon cards stay in the markup for the browser to hide' );
 
 ob_start();
 include $theme_dir . '/template-parts/services/filter-pills.php';
@@ -461,6 +509,15 @@ ob_start();
 include $theme_dir . '/template-parts/services/features.php';
 $html = ob_get_clean();
 check( substr_count( $html, 'class="ic rv"' ) === 6, 'features section renders the six original feature cards' );
+
+$GLOBALS['be_test']['values']['options']['global_features'] = array(
+	array( 'image' => 'https://ebdaa.test/uploads/icon-domain.webp', 'icon' => '', 'title' => 'دومين مجاني', 'text' => 'اسم موقعك .com على حسابنا لأول سنة.' ),
+);
+ob_start();
+include $theme_dir . '/template-parts/services/features.php';
+$html = ob_get_clean();
+check( strpos( $html, '<span><img src="https://ebdaa.test/uploads/icon-domain.webp" alt="دومين مجاني"></span>' ) !== false, 'features render an uploaded image inside the original icon box' );
+unset( $GLOBALS['be_test']['values']['options']['global_features'] );
 
 ob_start();
 include $theme_dir . '/template-parts/services/steps.php';
@@ -542,6 +599,10 @@ check( isset( $GLOBALS['be_test']['filters']['document_title_parts'] ), 'documen
 check( isset( $GLOBALS['be_test']['actions']['wp_head'] ), 'meta description is printed on the services pages' );
 
 /* --- Assets --- */
+
+$services_css = file_get_contents( $theme_dir . '/assets/css/services.css' );
+check( strpos( $services_css, '.ic>span img' ) !== false, 'uploaded feature images are sized inside the original icon box' );
+check( strpos( $services_css, '.stage.has-custom-art' ) !== false, 'custom hero artwork hides the original decorative layers' );
 
 $GLOBALS['be_test']['query_vars']['be_active'] = 'law';
 be_services_enqueue_assets();

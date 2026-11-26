@@ -9,31 +9,37 @@ function be_option_defaults() {
 		'global_features'  => array(
 			array(
 				'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>',
+				'image' => '',
 				'title' => 'دومين مجاني',
 				'text'  => 'اسم موقعك .com على حسابنا لأول سنة.',
 			),
 			array(
 				'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01"/></svg>',
+				'image' => '',
 				'title' => 'استضافة سريعة مجاناً',
 				'text'  => 'خوادم قوية وسرعة تحميل عالية بدون رسوم إضافية.',
 			),
 			array(
 				'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+				'image' => '',
 				'title' => 'شهادة SSL وحماية',
 				'text'  => 'موقع آمن بقفل HTTPS ونسخ احتياطي دوري.',
 			),
 			array(
 				'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="14" height="10" rx="1.5"/><rect x="14" y="9" width="8" height="12" rx="1.5"/></svg>',
+				'image' => '',
 				'title' => 'تصميم متجاوب',
 				'text'  => 'يظهر بشكل مثالي على الموبايل والتابلت والكمبيوتر.',
 			),
 			array(
 				'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+				'image' => '',
 				'title' => 'تهيئة لمحركات البحث',
 				'text'  => 'هيكل وسرعة صديقة لـ SEO ليسهل الوصول إليك.',
 			),
 			array(
 				'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>',
+				'image' => '',
 				'title' => 'دعم فني بعد التسليم',
 				'text'  => 'نكون معك بعد الإطلاق لأي تعديل أو استفسار.',
 			),
@@ -148,6 +154,15 @@ if ( function_exists( 'acf_add_local_field_group' ) ) {
 					'name'       => 'global_features',
 					'type'       => 'repeater',
 					'sub_fields' => array(
+						array(
+							'key'           => 'field_be_global_feature_image',
+							'label'         => 'Feature image',
+							'name'          => 'image',
+							'type'          => 'image',
+							'return_format' => 'url',
+							'preview_size'  => 'medium',
+							'library'       => 'all',
+						),
 						array(
 							'key'  => 'field_be_global_feature_icon',
 							'label' => 'Icon SVG or emoji',

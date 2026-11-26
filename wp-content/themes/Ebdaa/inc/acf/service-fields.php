@@ -38,6 +38,15 @@ if ( function_exists( 'acf_add_local_field_group' ) ) {
 					'type'  => 'textarea',
 				),
 				array(
+					'key'           => 'field_be_hero_image',
+					'label'         => 'Hero image',
+					'name'          => 'hero_image',
+					'type'          => 'image',
+					'return_format' => 'url',
+					'preview_size'  => 'medium',
+					'library'       => 'all',
+				),
+				array(
 					'key'        => 'field_be_hero_chips',
 					'label'      => 'Hero chips',
 					'name'       => 'hero_chips',

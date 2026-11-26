@@ -1,6 +1,9 @@
 <?php
-$service = isset( $args['service'] ) ? $args['service'] : be_current_service();
-$price   = be_format_price( $service['price'] );
+$service     = isset( $args['service'] ) ? $args['service'] : be_current_service();
+$price       = be_format_price( $service['price'] );
+$hero_image  = isset( $service['hero_image'] ) ? $service['hero_image'] : '';
+$hero_art    = '' !== $hero_image ? $hero_image : get_template_directory_uri() . '/assets/img/portrait.webp';
+$stage_class = '' !== $hero_image ? 'stage rv has-custom-art' : 'stage rv';
 ?>
         <div class="hero" id="home">
             <div class="wrap hgrid">
@@ -11,10 +14,10 @@ $price   = be_format_price( $service['price'] );
                     <div class="chips rv" style="--d:4" id="hc"><?php foreach ( $service['chips'] as $chip ) : ?><span><?php echo esc_html( $chip ); ?></span><?php endforeach; ?></div>
                     <div class="acts rv" style="--d:5"><a class="btn pri" href="#works"><?php echo esc_html__( '▦ عرض البورتفوليو', 'be' ); ?></a><a class="btn out" href="#pricing"><?php echo esc_html__( 'شاهد الباقات ➤', 'be' ); ?></a></div>
                 </div>
-                <div class="stage rv" style="--d:2">
+                <div class="<?php echo esc_attr( $stage_class ); ?>" style="--d:2">
                     <img class="brush" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/brush.webp' ); ?>" alt="">
                     <div class="ring"></div>
-                    <img class="person" src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/portrait.webp' ); ?>" alt="<?php echo esc_attr__( 'مطور ويب', 'be' ); ?>">
+                    <img class="person" id="himg" src="<?php echo esc_url( $hero_art ); ?>" alt="<?php echo esc_attr( $service['heading'] ); ?>">
                     <div class="fc a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></div>
                     <div class="fc b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8l-5 4 5 4M16 8l5 4-5 4M14 5l-4 14"/></svg></div>
                     <div class="pbadge"><small><?php echo esc_html__( 'يبدأ من', 'be' ); ?></small><b id="pb"><?php echo esc_html( $price ); ?></b> <?php echo esc_html( $service['currency'] ); ?></div>

@@ -40,7 +40,7 @@ function makeElement(id, attrs, flags) {
 }
 
 const byId = {};
-['hb', 'ht', 'hp', 'hc', 'pb', 'pt', 'ch', 'plans', 'pills', 'hd', 'bg', 'mn'].forEach((id) => {
+['hb', 'ht', 'hp', 'hc', 'pb', 'pt', 'ch', 'plans', 'pills', 'hd', 'bg', 'mn', 'himg', 'stage'].forEach((id) => {
 	byId[id] = makeElement(id);
 });
 
@@ -60,7 +60,7 @@ const document = {
 	title: '',
 	addEventListener(type, fn) { (docListeners[type] = docListeners[type] || []).push(fn); },
 	getElementById(id) { return byId[id] || null; },
-	querySelector(selector) { return byId[selector.replace('#', '')] || (selector === '.hero' ? makeElement('hero') : null); },
+	querySelector(selector) { return byId[selector.replace('#', '')] || (selector === '.hero' ? makeElement('hero') : (selector === '.stage' ? byId.stage : null)); },
 	querySelectorAll(selector) {
 		if (selector === '#pills a') return byId.pills.children;
 		if (selector === 'a.pc') return cards;
@@ -89,6 +89,7 @@ sandbox.BE_SERVICES = {
 		{
 			slug: 'realestate', url: '/service/realestate', n: 'العقارات', p: '7,000',
 			b: '🏙️ باقات المواقع العقارية', t: 'موقعك العقاري الاحترافي', d: 'اعرض وحداتك',
+			hero_image: '/uploads/hero-realestate.webp', hero_image_custom: true,
 			c: ['دومين مجاني', 'فلاتر بحث'],
 			pl: [
 				{ name: 'وسيط عقاري', price: '7,000', featured: false, badge: 'الأكثر طلباً', features: ['دومين واستضافة مجاناً لأول سنة', 'عرض حتى 50 وحدة'], cta_label: 'اطلب الباقة', cta_url: '' },
@@ -99,6 +100,7 @@ sandbox.BE_SERVICES = {
 		{
 			slug: 'law', url: '/service/law', n: 'المحاماة', p: '4,500',
 			b: '⚖️ باقات مواقع المحاماة', t: 'موقع مكتبك القانوني', d: 'حضور رقمي',
+			hero_image: '/uploads/portrait.webp', hero_image_custom: false,
 			c: ['دومين مجاني'],
 			pl: [{ name: 'محامٍ فردي', price: '4,500', featured: true, badge: 'الأكثر طلباً', features: ['حتى 6 صفحات'], cta_label: 'اطلب الباقة', cta_url: '' }],
 			faq: [],
@@ -118,6 +120,9 @@ assert.ok(byId.plans.innerHTML.indexOf('وسيط عقاري') !== -1, 'initial r
 assert.ok(byId.plans.innerHTML.indexOf('دومين واستضافة مجاناً لأول سنة') !== -1, 'included feature is rendered as the first package item');
 assert.ok(byId.pills.children[0].classList.contains('on'), 'the active pill is marked');
 assert.strictEqual(document.title, 'باقات العقارات تبدأ من 7,000 جنيه | إبداع', 'document title follows the service price');
+assert.strictEqual(byId.himg.src, '/uploads/hero-realestate.webp', 'initial render uses the service hero image');
+assert.strictEqual(byId.himg.alt, 'موقعك العقاري الاحترافي', 'the hero image alt text follows the service heading');
+assert.ok(byId.stage.classList.contains('has-custom-art'), 'a custom hero image hides the default decorative layers');
 
 const clickEvent = { target: byId.pills.children[1], prevented: false, preventDefault() { this.prevented = true; } };
 fire(docListeners, 'click', clickEvent);
@@ -127,6 +132,8 @@ assert.strictEqual(byId.hb.textContent, '⚖️ باقات مواقع المحا
 assert.ok(byId.plans.innerHTML.indexOf('محامٍ فردي') !== -1, 'filter click swaps the packages');
 assert.ok(byId.pills.children[1].classList.contains('on'), 'filter click marks the new active pill');
 assert.ok(cards[1].classList.contains('cur'), 'filter click marks the matching section card');
+assert.strictEqual(byId.himg.src, '/uploads/portrait.webp', 'filter click swaps the hero image');
+assert.ok(!byId.stage.classList.contains('has-custom-art'), 'switching to a service without artwork restores the default stage');
 
 sandbox.location.pathname = '/service/realestate';
 fire(winListeners, 'popstate', {});

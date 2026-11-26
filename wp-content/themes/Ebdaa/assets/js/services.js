@@ -117,6 +117,17 @@ function render(slug) {
 		element.classList.add('sw');
 	});
 
+	var heroImage = $('#himg');
+	if (heroImage && service.hero_image) {
+		heroImage.src = service.hero_image;
+		heroImage.alt = service.t;
+	}
+
+	var stage = $('.stage');
+	if (stage) {
+		stage.classList.toggle('has-custom-art', !!service.hero_image_custom);
+	}
+
 	document.title = 'باقات ' + service.n + ' تبدأ من ' + fmt(service.p) + ' جنيه | إبداع';
 }
 

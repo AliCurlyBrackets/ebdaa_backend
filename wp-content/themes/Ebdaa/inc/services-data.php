@@ -115,6 +115,7 @@ function be_service_from_post( $post ) {
 		'badge'         => (string) get_field( 'field_be_hero_badge', $id ),
 		'heading'       => (string) get_field( 'field_be_hero_title', $id ),
 		'description'   => (string) get_field( 'field_be_hero_description', $id ),
+		'hero_image'    => (string) get_field( 'field_be_hero_image', $id ),
 		'chips'         => be_repeater_texts( get_field( 'field_be_hero_chips', $id ) ),
 		'price'         => $price,
 		'packages'      => $packages,
@@ -192,6 +193,8 @@ function be_service_json( $service ) {
 		'c'    => $service['chips'],
 		'pl'   => $packages,
 		'faq'  => $service['faq'],
+		'hero_image'        => '' !== $service['hero_image'] ? $service['hero_image'] : get_template_directory_uri() . '/assets/img/portrait.webp',
+		'hero_image_custom' => '' !== $service['hero_image'],
 	);
 }
 
