@@ -9,7 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="<?php echo get_template_directory_uri(  ) . '/assets/css/style.css' ?>">
+    <?php if ( ! be_is_services_context() ) : ?>
     <link rel="stylesheet" href="<?php echo get_template_directory_uri(  ) . '/assets/css/home.css' ?>">
+    <?php endif; ?>
     <?php wp_head(  ) ; ?>
 </head>
 
