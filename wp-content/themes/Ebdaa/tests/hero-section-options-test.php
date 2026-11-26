@@ -90,6 +90,27 @@ foreach ( array(
 	check( in_array( $name, $names, true ), "field {$name} is registered" );
 }
 
+$fields_by_name = array();
+
+foreach ( $group['fields'] as $field ) {
+	$fields_by_name[ $field['name'] ] = $field;
+}
+
+foreach ( array( 'hero_brush_image', 'hero_person_image' ) as $name ) {
+	check(
+		isset( $fields_by_name[ $name ]['type'] ) && $fields_by_name[ $name ]['type'] === 'image',
+		"{$name} uses the image upload field, not a path text field"
+	);
+	check(
+		isset( $fields_by_name[ $name ]['return_format'] ) && $fields_by_name[ $name ]['return_format'] === 'url',
+		"{$name} returns the uploaded image URL"
+	);
+	check(
+		! array_key_exists( 'default_value', $fields_by_name[ $name ] ),
+		"{$name} has no hardcoded path default"
+	);
+}
+
 $location = isset( $group['location'][0][0] ) ? $group['location'][0][0] : array();
 
 check(
@@ -107,8 +128,8 @@ $GLOBALS['ebdaa_test']['values'] = array(
 	'hero_secondary_label' => 'TEST secondary',
 	'hero_secondary_link'  => '#test-secondary',
 	'hero_scroll_label'    => 'TEST scroll',
-	'hero_brush_image'     => 'assets/img/test-brush.webp',
-	'hero_person_image'    => 'assets/img/test-person.webp',
+	'hero_brush_image'     => 'https://example.test/wp-content/uploads/2026/11/uploaded-brush.webp',
+	'hero_person_image'    => 'https://example.test/wp-content/uploads/2026/11/uploaded-person.webp',
 	'hero_person_alt'      => 'TEST alt',
 );
 
@@ -133,11 +154,21 @@ check(
 );
 check( strpos( $html, 'مرحباً بك في إبداع' ) === false, 'hero greeting is no longer hardcoded' );
 check( strpos( $html, '<span>TEST highlight</span>' ) !== false, 'highlighted headline text comes from the option' );
+check(
+	strpos( $html, 'src="https://example.test/wp-content/uploads/2026/11/uploaded-brush.webp"' ) !== false,
+	'hero template uses the uploaded brush image as the img src'
+);
+check(
+	strpos( $html, 'src="https://example.test/wp-content/uploads/2026/11/uploaded-person.webp"' ) !== false,
+	'hero template uses the uploaded person image as the img src'
+);
 
 $defaults = array();
 
 foreach ( $group['fields'] as $field ) {
-	$defaults[ $field['name'] ] = $field['default_value'];
+	if ( array_key_exists( 'default_value', $field ) ) {
+		$defaults[ $field['name'] ] = $field['default_value'];
+	}
 }
 
 $GLOBALS['ebdaa_test']['values'] = $defaults;
@@ -156,8 +187,6 @@ foreach ( array(
 	'تواصل معنا ➤',
 	'#contact',
 	'اكتشف المزيد',
-	'assets/img/brush.webp',
-	'assets/img/portrait.webp',
 	'مطور ويب',
 ) as $text ) {
 	check( strpos( $default_html, $text ) !== false, "default option value preserves original content: {$text}" );
