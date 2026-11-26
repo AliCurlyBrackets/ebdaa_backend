@@ -3,12 +3,14 @@
 $theme_dir = dirname( __DIR__ );
 
 $GLOBALS['ebdaa_test'] = array(
-	'options_page' => null,
-	'field_group'  => null,
-	'values'       => array(),
-	'actions'      => array(),
-	'post_ids'     => array(),
-	'selectors'    => array(),
+	'options_page'  => null,
+	'options_pages' => array(),
+	'field_group'   => null,
+	'field_groups'  => array(),
+	'values'        => array(),
+	'actions'       => array(),
+	'post_ids'      => array(),
+	'selectors'     => array(),
 );
 
 function add_action( $hook, $callback ) {
@@ -16,11 +18,19 @@ function add_action( $hook, $callback ) {
 }
 
 function acf_add_options_page( $args ) {
-	$GLOBALS['ebdaa_test']['options_page'] = $args;
+	if ( null === $GLOBALS['ebdaa_test']['options_page'] ) {
+		$GLOBALS['ebdaa_test']['options_page'] = $args;
+	}
+
+	$GLOBALS['ebdaa_test']['options_pages'][ $args['menu_slug'] ] = $args;
 }
 
 function acf_add_local_field_group( $args ) {
-	$GLOBALS['ebdaa_test']['field_group'] = $args;
+	if ( null === $GLOBALS['ebdaa_test']['field_group'] ) {
+		$GLOBALS['ebdaa_test']['field_group'] = $args;
+	}
+
+	$GLOBALS['ebdaa_test']['field_groups'][ $args['title'] ] = $args;
 }
 
 function get_field( $selector, $post_id = false ) {
