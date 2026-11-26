@@ -11,7 +11,7 @@ function be_option( $name ) {
 	$defaults = be_option_defaults();
 	$value    = get_field( 'field_be_' . $name, 'options' );
 
-	if ( null === $value || '' === $value || array() === $value ) {
+	if ( null === $value || false === $value || '' === $value || array() === $value ) {
 		return isset( $defaults[ $name ] ) ? $defaults[ $name ] : $value;
 	}
 

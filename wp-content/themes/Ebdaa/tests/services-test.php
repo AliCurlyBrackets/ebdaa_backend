@@ -18,6 +18,7 @@ $GLOBALS['be_test'] = array(
 	'inline'          => array(),
 	'posts'           => array(),
 	'query_vars'      => array(),
+	'theme_support'   => array(),
 );
 
 function add_action( $hook, $callback ) {
@@ -45,6 +46,10 @@ function register_post_type( $type, $args ) {
 
 function add_image_size( $name, $width, $height, $crop = false ) {
 	$GLOBALS['be_test']['image_sizes'][ $name ] = array( $width, $height, $crop );
+}
+
+function add_theme_support( $feature ) {
+	$GLOBALS['be_test']['theme_support'][] = $feature;
 }
 
 function acf_add_options_page( $args ) {
@@ -226,11 +231,14 @@ function check( $condition, $message ) {
 	echo ( $condition ? 'PASS ' : 'FAIL ' ) . $message . PHP_EOL;
 }
 
-foreach ( array( 'be_register_service_post_type', 'be_add_service_image_size', 'be_register_services_filters' ) as $registration ) {
+foreach ( array( 'be_register_service_post_type', 'be_add_service_image_size', 'be_add_post_thumbnails_support', 'be_register_services_filters' ) as $registration ) {
 	if ( function_exists( $registration ) ) {
 		call_user_func( $registration );
 	}
 }
+
+check( in_array( 'post-thumbnails', $GLOBALS['be_test']['theme_support'], true ), 'the theme enables featured images for every post type' );
+check( isset( $GLOBALS['be_test']['actions']['after_setup_theme'] ) && in_array( 'be_add_post_thumbnails_support', $GLOBALS['be_test']['actions']['after_setup_theme'], true ), 'post thumbnail support is registered on after_setup_theme' );
 
 /* --- CPT and image size --- */
 
@@ -485,6 +493,40 @@ ob_start();
 include $theme_dir . '/template-parts/services/types-grid.php';
 $html = ob_get_clean();
 check( trim( $html ) === '', 'the section is not rendered when there are no grid services' );
+
+/* --- Unset ACF options --- */
+
+$GLOBALS['be_test']['query_vars']['be_active'] = 'realestate';
+$GLOBALS['be_test']['values']['options']       = array(
+	'global_features' => false,
+	'global_steps'    => false,
+	'global_faq'      => false,
+);
+be_clear_services_cache();
+$service = be_current_service();
+$args    = array( 'service' => $service );
+
+$notices = array();
+set_error_handler( function ( $number, $message ) use ( &$notices ) {
+	$notices[] = $message;
+	return true;
+} );
+
+ob_start();
+include $theme_dir . '/template-parts/services/features.php';
+include $theme_dir . '/template-parts/services/steps.php';
+include $theme_dir . '/template-parts/services/faq.php';
+$html = ob_get_clean();
+
+restore_error_handler();
+
+check( substr_count( $html, 'class="ic rv"' ) === 6, 'features render from defaults when ACF returns false' );
+check( substr_count( $html, 'class="st rv"' ) === 4, 'steps render from defaults when ACF returns false' );
+check( substr_count( $html, '<div class="q' ) === 6, 'FAQ renders from defaults when ACF returns false' );
+check( empty( $notices ), 'unset ACF options raise no PHP warnings: ' . implode( ' | ', $notices ) );
+
+unset( $GLOBALS['be_test']['values']['options'] );
+be_clear_services_cache();
 
 check( isset( $GLOBALS['be_test']['shortcodes']['be_service_types'] ), 'the [be_service_types] shortcode is registered' );
 

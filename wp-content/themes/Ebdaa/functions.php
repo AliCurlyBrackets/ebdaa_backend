@@ -14,6 +14,11 @@ include("inc/acf/service-fields.php");
 include("inc/acf/options.php");
 include("inc/services-data.php");
 
+function be_add_post_thumbnails_support() {
+	add_theme_support( 'post-thumbnails' );
+}
+add_action( 'after_setup_theme', 'be_add_post_thumbnails_support' );
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	include("inc/seed-services.php");
 }
