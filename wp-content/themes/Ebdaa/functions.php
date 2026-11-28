@@ -10,6 +10,7 @@ include("Functions/Style_Theme/style_theme.php");
 include("Functions/Options/hero_section.php");
 include("Functions/Options/feature_services.php");
 include("Functions/Options/about.php");
+include("Functions/Options/clients.php");
 include("inc/post-types/service.php");
 include("inc/acf/service-fields.php");
 include("inc/acf/options.php");
