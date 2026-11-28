@@ -47,8 +47,10 @@
         </div>
     </footer>
 
+    <?php if ( ! be_is_services_context() ) : ?>
     <script src="<?php echo get_template_directory_uri(  ) . '/assets/js/posts.js' ?>"></script>
     <script src="<?php echo get_template_directory_uri(  ) . '/assets/js/home.js' ?>"></script>
+    <?php endif; ?>
     <?php wp_footer(); ?>
 </body>
 
