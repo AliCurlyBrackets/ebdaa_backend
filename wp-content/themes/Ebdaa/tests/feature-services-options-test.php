@@ -62,7 +62,7 @@ function check( $condition, $message ) {
 
 $page = isset( $GLOBALS['ebdaa_test']['options_pages']['feature-services'] ) ? $GLOBALS['ebdaa_test']['options_pages']['feature-services'] : array();
 
-check( count( $GLOBALS['ebdaa_test']['options_pages'] ) === 3, 'functions.php registers the Hero Section, Feature Services and Services options pages' );
+check( count( $GLOBALS['ebdaa_test']['options_pages'] ) === 4, 'functions.php registers the Hero Section, Feature Services, About and Services options pages' );
 check( isset( $page['page_title'] ) && $page['page_title'] === 'Feature Services', 'options page title is Feature Services' );
 check( isset( $page['menu_title'] ) && $page['menu_title'] === 'Feature Services', 'options page appears in the admin sidebar as Feature Services' );
 check( isset( $page['menu_slug'] ) && $page['menu_slug'] === 'feature-services', 'options page slug is feature-services' );
